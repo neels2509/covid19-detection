@@ -3,10 +3,13 @@ import numpy as np
 import cv2
 import pickle
 from tensorflow.keras.models import load_model
+from tensorflow import keras
 import matplotlib.pyplot as plt
 import seaborn as sns
 from PIL import Image
 import io
+from huggingface_hub import hf_hub_download
+import os
 
 # Configure Streamlit page
 st.set_page_config(
@@ -75,7 +78,14 @@ st.markdown("""
 @st.cache_resource
 def load_model_and_info():
     try:
-        model = load_model('best_covid_model.keras')
+        # model = load_model('best_covid_model.keras')
+        # Download model once from hugging face (cached automatically)
+        model_path = hf_hub_download(
+            repo_id="neelshah259/covid-xray-model",
+            filename="best_covid_model.keras",
+            cache_dir=os.path.abspath(os.path.join(os.getcwd(), "models"))
+        )
+        model = load_model(model_path)
         label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))
         preprocessing_info = pickle.load(open('preprocessing_info.pkl', 'rb'))
         return model, label_encoder, preprocessing_info
