@@ -1,8 +1,16 @@
 [client]
 showErrorDetails = true
+showSidebarNavigation = true
 
 [logger]
 level = "debug"
+
+[theme]
+primaryColor = "#667eea"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
 
 [server]
 maxUploadSize = 200
