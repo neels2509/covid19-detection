@@ -3,11 +3,8 @@ import numpy as np
 import cv2
 import pickle
 from tensorflow.keras.models import load_model
-from tensorflow import keras
 import matplotlib.pyplot as plt
-import seaborn as sns
 from PIL import Image
-import io
 from huggingface_hub import hf_hub_download
 import os
 
@@ -21,57 +18,133 @@ st.set_page_config(
 
 # Custom CSS for beautiful UI
 st.markdown("""
-    <style>
-    .main {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-    }
-    .stTabs [data-baseweb="tab-list"] button {
-        background-color: #f0f2f6;
-        border-radius: 8px;
-        padding: 10px 20px;
-        margin-right: 5px;
-        font-weight: 600;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #667eea !important;
-        color: white !important;
-    }
-    .prediction-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 12px;
-        color: white;
-        text-align: center;
-        margin: 1rem 0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .confidence-high {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    }
-    .confidence-medium {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-    .confidence-low {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    }
-    .metric-box {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin: 1rem 0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .header-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    </style>
+<style>
+
+/* App background */
+.stApp {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Main content text */
+.block-container {
+    color: white;
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #0e1117;
+}
+
+/* Make ALL sidebar text white */
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* Header title */
+.header-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: white;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* Upload + camera containers */
+[data-testid="stFileUploader"],
+[data-testid="stCameraInput"] {
+    background-color: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+/* FIX upload button visibility */
+[data-testid="stFileUploader"] section {
+    background-color: white !important;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+/* Upload text */
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] span {
+    color: black !important;
+}
+
+/* Browse files button */
+[data-testid="stFileUploader"] button {
+    background-color: #667eea !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+}
+
+/* Camera section */
+[data-testid="stCameraInput"] button {
+    background-color: #667eea !important;
+    color: white !important;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] button {
+    background-color: #f0f2f6;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin-right: 5px;
+    font-weight: 600;
+    color: black;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: #667eea !important;
+    color: white !important;
+}
+
+/* Prediction card */
+.prediction-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    margin: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+/* Confidence gradients */
+.confidence-high {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.confidence-medium {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.confidence-low {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+/* Metric boxes */
+.metric-box {
+    background: rgba(255,255,255,0.95);
+    color: black;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+/* Slider text */
+.stSlider label {
+    color: white !important;
+}
+
+/* Markdown text */
+p, h1, h2, h3, h4, h5, h6 {
+    color: white;
+}
+
+</style>
 """, unsafe_allow_html=True)
 
 # Load model and preprocessing info
@@ -104,7 +177,7 @@ st.markdown('<h1 class="header-title">🫁 COVID-19 X-Ray Detection AI</h1>', un
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.markdown("""
-    <div style="text-align: center; color: #555; font-size: 16px; margin-bottom: 2rem;">
+    <div style="text-align: center; color: white; font-size: 16px; margin-bottom: 2rem;">
     Advanced deep learning model for COVID-19 detection from chest X-ray images.
     Upload or capture an X-ray image to get instant predictions.
     </div>
