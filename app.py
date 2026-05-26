@@ -25,21 +25,30 @@ st.markdown("""
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Main content text */
-.block-container {
-    color: white;
-}
-
 /* Sidebar styling */
 [data-testid="stSidebar"] {
     background-color: #0e1117;
 }
 
-/* Make ALL sidebar text white */
-[data-testid="stSidebar"] * {
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] div,
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
     color: white !important;
 }
 
+/* Nice glass cards */
+.glass-card {
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+            
 /* Header title */
 .header-title {
     font-size: 2.8rem;
@@ -138,10 +147,86 @@ st.markdown("""
 .stSlider label {
     color: white !important;
 }
-
-/* Markdown text */
-p, h1, h2, h3, h4, h5, h6 {
+            
+/* Main page text */
+.stMarkdown,
+.stText,
+label,
+div {
     color: white;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: white !important;
+}
+
+/* Keep metric-box text dark */
+.metric-box,
+.metric-box * {
+    color: #111 !important;
+}
+            
+/* Fix ALL text inside metric cards */
+.metric-box h1,
+.metric-box h2,
+.metric-box h3,
+.metric-box h4,
+.metric-box h5,
+.metric-box h6,
+.metric-box p,
+.metric-box span,
+.metric-box li,
+.metric-box b {
+    color: #111 !important;
+}
+
+/* Progress bar background */
+.metric-box div[style*="background: #eee"] {
+    background: #dcdcdc !important;
+}
+
+/* Alert boxes text */
+[data-testid="stAlert"] * {
+    color: white !important;
+}
+
+/* Info/warning/success blocks */
+.stAlert {
+    border-radius: 12px;
+}
+
+/* Fix markdown text contrast */
+.stMarkdown {
+    color: white;
+}
+
+/* Upload area */
+[data-testid="stFileUploaderDropzone"] {
+    background: rgba(255,255,255,0.12);
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 14px;
+    padding: 1rem;
+    color: white !important;
+}
+            
+/* Browse button */
+[data-testid="baseButton-secondary"] {
+    background: #667eea !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+}
+
+/* Camera component */
+[data-testid="stCameraInput"] * {
+    color: black !important;
+}
+            
+.chart-container {
+    background: rgba(255,255,255,0.08);
+    padding: 1rem;
+    border-radius: 12px;
 }
 
 </style>
@@ -328,19 +413,59 @@ if page == "🔍 Prediction":
         # Confidence chart
         st.markdown("---")
         st.markdown("### 📈 Confidence Distribution")
-        
+
         fig, ax = plt.subplots(figsize=(10, 6))
-        colors = ['#667eea' if i == predicted_class_idx else '#ccc' for i in range(len(predictions))]
-        bars = ax.barh(label_encoder.classes_, predictions, color=colors)
-        ax.set_xlabel('Confidence Score', fontsize=12, fontweight='bold')
-        ax.set_title('Model Confidence for Each Class', fontsize=14, fontweight='bold')
-        ax.set_xlim(0, 1)
-        
-        # Add value labels
+
+        # Solid white chart background
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        colors = [
+            '#667eea' if i == predicted_class_idx else '#cccccc'
+            for i in range(len(predictions))
+        ]
+
+        bars = ax.barh(
+            label_encoder.classes_,
+            predictions,
+            color=colors
+        )
+
+        # Axis labels
+        ax.set_xlabel(
+            'Confidence Score',
+            fontsize=12,
+            fontweight='bold',
+            color='black'
+        )
+
+        ax.set_title(
+            'Model Confidence for Each Class',
+            fontsize=14,
+            fontweight='bold',
+            color='black'
+        )
+
+        # Axis styling
+        ax.tick_params(axis='x', colors='black')
+        ax.tick_params(axis='y', colors='black')
+
+        # Add labels
         for i, (bar, pred) in enumerate(zip(bars, predictions)):
-            ax.text(pred + 0.02, i, f'{pred:.2%}', va='center', fontweight='bold')
-        
+            ax.text(
+                pred + 0.02,
+                i,
+                f'{pred:.2%}',
+                va='center',
+                fontsize=12,
+                fontweight='bold',
+                color='black'
+            )
+
+        ax.set_xlim(0, 1)
+
         plt.tight_layout()
+
         st.pyplot(fig, use_container_width=True)
         
         # Alert based on prediction
@@ -584,7 +709,7 @@ elif page == "❓ How It Works":
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #888; font-size: 12px; padding: 2rem 0;">
+<div style="text-align: center; color: white; font-size: 12px; padding: 2rem 0;">
     <p>🔬 COVID-19 X-Ray Detection AI | Powered by Deep Learning | Built with ❤️ for Healthcare</p>
     <p>⚠️ <b>Disclaimer:</b> This tool is for educational and supportive purposes only. Always consult with healthcare professionals.</p>
 </div>
